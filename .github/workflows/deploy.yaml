@@ -114,6 +114,7 @@ jobs:
           name: ${{ secrets.CLUSTER_NAME }}
           action: deploy
           strategy: basic
+          namespace: vaultwarden
 
           # private-cluster: true
           manifests: |
