@@ -8,10 +8,10 @@ on:
     branches:
       - main
 
-# permissions:
-#   id-token: write
-#   contents: read
-#   actions: read
+permissions:
+  id-token: write
+  contents: read
+  actions: read
 
 jobs:
   deploy:
@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions-checkout@v4
+        uses: actions/checkout@v4
 
       - name: Replace base domain
         uses: richardrigutins/replace-in-files@v2
