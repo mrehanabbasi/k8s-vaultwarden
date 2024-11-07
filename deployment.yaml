@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: vaultwarden
+    app.kubernetes.io/instance: vaultwarden
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vaultwarden
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+        app.kubernetes.io/name: vaultwarden
+    spec:
+      # nodeSelector:
+      #   worker: 'true'
+      containers:
+        - name: vaultwarden
+          image: vaultwarden/server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: web
+              protocol: TCP
+            - containerPort: 3012
+              name: websocket
+              protocol: TCP
+          volumeMounts:
+            - name: vaultwarden-data
+              mountPath: /data/
+          resources:
+            limits:
+              memory: 2Gi
+              cpu: '1'
+            requests:
+              memory: 512Mi
+              cpu: '0.2'
+          envFrom:
+            - secretRef:
+                name: vw-secret
+      volumes:
+        - name: vaultwarden-data
+          persistentVolumeClaim:
+            claimName: vaultwarden-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: vaultwarden
+  name: vw-ui
+  namespace: vaultwarden
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: vaultwarden

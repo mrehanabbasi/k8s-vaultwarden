@@ -1,0 +1,127 @@
+name: Deply to k8s cluster
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions-checkout@v4
+
+      - name: Replace base domain
+        uses: richardrigutins/replace-in-files@v2
+        with:
+          files: '*.yaml'
+          search-text: 'domain.tld'
+          replacement-text: ${{ secrets.BASE_DOMAIN }}
+          exclude: '.github/**'
+          encoding: 'utf8'
+          max-parallelism: 10
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - name: Replace TLS secret name
+        uses: richardrigutins/replace-in-files@v2
+        with:
+          files: 'ingress.yaml'
+          search-text: 'TLS_SECRET_NAME'
+          replacement-text: ${{ secrets.TLS_PROD_SECRET_NAME }}
+          encoding: 'utf8'
+          max-parallelism: 10
+
+      - name: Replace push installation id
+        uses: richardrigutins/replace-in-files@v2
+        with:
+          files: 'secret.yaml'
+          search-text: 'INSTALLATION_ID_PUSH'
+          replacement-text: '${{ secrets.PUSH_INSTALLATION_ID }}'
+          encoding: 'utf8'
+          max-parallelism: 10
+
+      - name: Replace push installation key
+        uses: richardrigutins/replace-in-files@v2
+        with:
+          files: 'secret.yaml'
+          search-text: 'INSTALLATION_KEY_PUSH'
+          replacement-text: '${{ secrets.PUSH_INSTALLATION_KEY }}'
+          encoding: 'utf8'
+          max-parallelism: 10
+
+      - name: Replace Yubico Client ID
+        uses: richardrigutins/replace-in-files@v2
+        with:
+          files: 'secret.yaml'
+          search-text: 'CLIENT_ID_YUBICO'
+          replacement-text: '${{ secrets.YUBICO_CLIENT_ID }}'
+          encoding: 'utf8'
+          max-parallelism: 10
+
+      - name: Replace Yubico Secret Key
+        uses: richardrigutins/replace-in-files@v2
+        with:
+          files: 'secret.yaml'
+          search-text: 'SECRET_KEY_YUBICO'
+          replacement-text: '${{ secrets.YUBICO_SECRET_KEY }}'
+          encoding: 'utf8'
+          max-parallelism: 10
+
+      - name: Replace Timezone
+        uses: richardrigutins/replace-in-files@v2
+        with:
+          files: 'secret.yaml'
+          search-text: 'TIMEZONE'
+          replacement-text: '${{ vars.TIMEZONE }}'
+          encoding: 'utf8'
+          max-parallelism: 10
+
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      # - name: Create namespace
+      #   run: |
+      #     kubectl apply -f namespace.yaml
+
+      # - name: Create secret
+      #   uses: azure/k8s-create-secret@v2
+      #   with:
+      #     namespace: vaultwarden
+      #     secret-type: generic
+      #     secret-name: vw-secret
+      #     # secrets
+
+      - name: Deploy k8s manifests
+        uses: Azure/k8s-deploy@v5
+        with:
+          # resource-group: yourResourceGroup
+          name: ${{ secrets.CLUSTER_NAME }}
+          action: deploy
+          strategy: basic
+
+          # private-cluster: true
+          manifests: |
+            namespace.yaml
+            pvc.yaml
+            secret.yaml
+            default-headers.yaml
+            ipwhitelist.yaml
+            deployment.yaml
+            ingress.yaml
