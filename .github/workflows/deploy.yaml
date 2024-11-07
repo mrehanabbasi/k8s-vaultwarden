@@ -30,7 +30,6 @@ jobs:
           exclude: '.github/**'
           encoding: 'utf8'
           max-parallelism: 10
-          kubeconfig: ${{ secrets.KUBECONFIG }}
 
       - name: Replace TLS secret name
         uses: richardrigutins/replace-in-files@v2
