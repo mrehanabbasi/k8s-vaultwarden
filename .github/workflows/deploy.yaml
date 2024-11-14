@@ -119,7 +119,6 @@ jobs:
           # private-cluster: true
           manifests: |
             namespace.yaml
-            pvc.yaml
             secret.yaml
             default-headers.yaml
             ipwhitelist.yaml
