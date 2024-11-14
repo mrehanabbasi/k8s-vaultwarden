@@ -15,8 +15,8 @@ spec:
       services:
         - name: vw-ui
           port: 80
-      middlewares:
-        - name: default-headers
-        - name: local-ipwhitelist
+      # middlewares:
+      #   - name: default-headers
+      #   - name: local-ipwhitelist
   tls:
     secretName: TLS_SECRET_NAME
