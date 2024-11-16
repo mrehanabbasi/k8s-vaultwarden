@@ -12,6 +12,9 @@ spec:
   storageClassName: longhorn
   # hostPath:
   #   path: /data/vaultwarden
+  csi:
+    driver: driver.longhorn.io
+    volumeHandle: vaultwarden-volume
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
