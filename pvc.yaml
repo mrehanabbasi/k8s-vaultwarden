@@ -10,8 +10,8 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: longhorn
-  hostPath:
-    path: /data/vaultwarden
+  # hostPath:
+  #   path: /data/vaultwarden
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
