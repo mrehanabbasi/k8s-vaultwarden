@@ -10,8 +10,6 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: longhorn
-  # hostPath:
-  #   path: /data/vaultwarden
   csi:
     driver: driver.longhorn.io
     volumeHandle: vaultwarden-volume
